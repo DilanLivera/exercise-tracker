@@ -1,10 +1,20 @@
 // init project
-const express   = require('express');
-const app       = express();
-const apiRouter = require("./routes/apiRoutes");
-const PORT      = process.env.PORT || 3000;
+require('dotenv').config();
+const express     = require('express');
+const app         = express();
+const apiRouter   = require("./routes/apiRoutes");
+const bodyparser  = require("body-parser");
+const mongoose    = require("mongoose")
+const PORT        = process.env.PORT || 3000;
+const DATABASEURL = process.env.DATABASEURL;
+
+//set up mongoose
+mongoose.set('debug', true);
+mongoose.connect(DATABASEURL, {useNewUrlParser: true});
+mongoose.Promise = Promise;
 
 app.use(express.static('public'));
+app.use(bodyparser.urlencoded({extended: true}));
 app.use('/api/exercise', apiRouter);
 
 //home route
