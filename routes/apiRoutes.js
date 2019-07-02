@@ -6,7 +6,7 @@ const Exercise    = require("../models/Exercise");
 router.post('/new-user', (req, res) => {
   let name = req.body.name;
   let user = { name };
-  
+  console.log(user);
   User
     .create(user)
     .then(newUser => {
@@ -18,7 +18,7 @@ router.post('/new-user', (req, res) => {
 router.post('/add', (req, res) => {
   let { _id, description, duration, date }  = req.body.exercise;
   date = new Date(date);
-
+  console.log( _id, description, duration, date );
   Exercise
     .create({ description, duration, date })
     .then(newExercise => {
@@ -49,16 +49,16 @@ router.post('/add', (req, res) => {
     .catch( err => res.status(500).send(`Something broke! => ${err}`));
 });
 
-router.get('/log/:_id/:from/:to/:limit', (req, res) => {
+router.get('/log/:_id/:from?/:to?/:limit?', (req, res) => {
   let { _id, from, to, limit } = req.params; //."5d19bb9ee331345464cbad3b"
-
+  console.log( _id, from, to, limit );
   User
     .findOne({ _id })
     .populate('exerciseList')
     .exec((err, foundUser) => {
       if(err) res.status(500).send(`Something broke! => ${err}`);
 
-      res.json({ foundUser, newExercise });
+      res.json(foundUser);
     });
 });
 

@@ -8,6 +8,32 @@
   <title>Exercise Tracker</title>
 </head>
 <body>
-  <h1>Exercise Tracker</h1>
+  <h1 class="title">Exercise Tracker</h1>
+  <section id="add-user">
+    <form action="/api/exercise/new-user" method="POST">
+      <h3>Create a New User</h3>
+      <input type="text" name="name" id="name" placeholder="username">
+      <button>Submit</button>
+    </form>
+  </section>
+  <hr>
+  <section id="add-exercise">
+    <form action="/api/exercise/add" method="POST">
+      <h3>Add exercises</h3>
+      <input type="text" name="exercise[_id]" id="userId" placeholder="userId*">
+      <input type="text" name="exercise[description]" id="description" placeholder="description*">
+      <input type="text" name="exercise[duration]" id="duration" placeholder="duration*(mins.)">
+      <input type="text" name="exercise[date]" id="date" placeholder="date (yyyy-mm-dd)">
+      <button>Submit</button>
+    </form>
+  </section>
+  <hr>  
+  <section id="notes">
+    <div>
+      <p><span class="bold">GET users's exercise log:</span> <code>GET /api/exercise/log?{userId}[&from][&to][&limit]</code></p>
+      <p>{ } = required, [ ] = optional</p>
+      <p>from, to = dates (yyyy-mm-dd); limit = number</p>
+    </div>
+  </section>
 </body>
 </html>
