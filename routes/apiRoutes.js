@@ -35,8 +35,8 @@ router.post('/add', (req, res) => {
             .then(() => {
               //find the user and populate the exercise list
               User
-                .findOne({ id })
-                .populate('exerciseList')
+                .findOne({ id })                
+                .populate('exerciseList', 'description duration date')
                 .exec((err, foundUser) => {                  
                   if(err) res.status(500).send(`Something broke! => ${err}`);
                   let { id, name, exerciseList } = foundUser;
@@ -56,7 +56,7 @@ router.get('/log/:id/:from?/:to?/:limit?', (req, res) => {
   
   User
     .findOne({ id })
-    .populate('exerciseList')
+    .populate('exerciseList', 'description duration date')
     .exec((err, foundUser) => {
       if(err) res.status(500).send(`Something broke! => ${err}`);
       let { id, name, exerciseList } = foundUser;
