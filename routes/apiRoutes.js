@@ -52,13 +52,31 @@ router.post('/add', (req, res) => {
 });
 
 router.get('/log/:id/:from?/:to?/:limit?', (req, res) => {
-  let { id, from, to, limit } = req.params; //."5d19bb9ee331345464cbad3b"
+  let { id, from, to, limit } = req.params;
+  from = new Date('2014-01-01');
+  to = new Date('2020-01-01');
+  limit = 2;
   
+  //find user
   User
     .findOne({ id })
-    .populate('exerciseList', 'description duration date')
+    //populte with query
+    .populate({
+      path: 'exerciseList',
+      match: {
+        date: {
+            $gt:  from,
+            $lt:  to
+        }
+      },
+      select: 'description duration date',
+      options: { 
+        limit
+      }
+    })
     .exec((err, foundUser) => {
       if(err) res.status(500).send(`Something broke! => ${err}`);
+
       let { id, name, exerciseList } = foundUser;
       res.json({ id, name, exerciseList });
     });
