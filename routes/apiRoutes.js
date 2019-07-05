@@ -6,14 +6,20 @@ const Exercise    = require("../models/Exercise");
 router.post('/new-user', (req, res) => {
   let name = req.body.name;
   let user = { name };
-    
+
   User
-    .create(user)
+    .find(user)
+    .then(foundUser => {
+      if(foundUser.length) throw new Error('username exists.');
+      else return User.create(user);
+    })
     .then(newUser => {
       let { id, name } = newUser;
       res.json({ id, name });
-    })
-    .catch( err => res.status(500).send(`Something broke! => ${err}`));
+    })    
+    .catch( err => {
+      res.send(err.message);
+    });
 });
 
 router.post('/add', (req, res) => {
