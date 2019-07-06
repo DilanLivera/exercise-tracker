@@ -29,7 +29,7 @@ router.post('/add', (req, res) => {
   if(date !== undefined && (new Date(date)).toString() === "Invalid Date") throw new Error("please enter a valid date");
 
   Exercise
-    .create({ description, duration })
+    .create({ description, duration, date })
     .then(newExercise => {      
       User
         .findOne({ id })
