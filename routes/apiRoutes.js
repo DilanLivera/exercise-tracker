@@ -17,44 +17,61 @@ router.post('/new-user', (req, res) => {
       let { id, name } = newUser;
       res.json({ id, name });
     })    
-    .catch( err => {
-      res.send(err.message);
-    });
+    .catch( err => res.status(500).send(err.message));
 });
 
 router.post('/add', (req, res) => {
   let { id, description, duration, date }  = req.body.exercise;
-  date = new Date(date);
-  
+  date = (date === "") ? undefined : date;
+
+  //validate user id and date
+  if(!id) throw new Error("user id cannot be empty");
+  if(date !== undefined && (new Date(date)).toString() === "Invalid Date") throw new Error("please enter a valid date");
+
   Exercise
-    .create({ description, duration, date })
+    .create({ description, duration })
     .then(newExercise => {      
       User
         .findOne({ id })
         .then(foundUser => {
-          //add new exercise to the users exercise list
-          foundUser.exerciseList.push(newExercise);
-          
-          //save user
-          foundUser
-            .save()
-            .then(() => {
-              //find the user and populate the exercise list
-              User
-                .findOne({ id })                
-                .populate('exerciseList', 'description duration date')
-                .exec((err, foundUser) => {                  
-                  if(err) res.status(500).send(`Something broke! => ${err}`);
-                  let { id, name, exerciseList } = foundUser;
+          console.log(foundUser);
+          //check if user exists
+          if(foundUser) {
+            //add new exercise to the users exercise list
+            foundUser.exerciseList.push(newExercise);
+            
+            //save user
+            foundUser
+              .save()
+              .then(() => {
+                //find the user and populate the exercise list
+                User
+                  .findOne({ id })                
+                  .populate('exerciseList', 'description duration date')
+                  .exec((err, foundUser) => {                  
+                    if(err) throw err;
+                    let { id, name, exerciseList } = foundUser;
 
-                  res.json({ id, name, exerciseList });
-                });
-              }, 
-              err => res.status(500).send(`Something broke! => ${err}`));              
+                    res.json({ id, name, exerciseList });
+                  });
+                })
+            .catch( err => res.status(500).send(err.message));
+          }
+          else throw new Error("user doesn't exist!!!")
         })
-        .catch( err => res.status(500).send(`Something broke! => ${err}`));  
+        .catch( err => res.status(500).json({
+          error: {
+            message: err.message
+          }
+        }));
     })
-    .catch( err => res.status(500).send(`Something broke! => ${err}`));
+    .catch( err => {
+      res.status(500).json({
+        error: {
+          message: err.message
+        }
+      });
+    })
 });
 
 router.get('/log/:id/:from?/:to?/:limit?', (req, res) => {
@@ -81,7 +98,7 @@ router.get('/log/:id/:from?/:to?/:limit?', (req, res) => {
       }
     })
     .exec((err, foundUser) => {
-      if(err) res.status(500).send(`Something broke! => ${err}`);
+      if(err) res.status(500).send(err.message);
 
       let { id, name, exerciseList } = foundUser;
       res.json({ id, name, exerciseList });
