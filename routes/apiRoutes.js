@@ -82,9 +82,9 @@ router.post('/add', (req, res) => {
 
 router.get('/log/:id/:from?/:to?/:limit?', (req, res) => {
   let { id, from, to, limit } = req.params;
-  from = new Date('2014-01-01');
-  to = new Date('2020-01-01');
-  // limit = 2;
+  from = new Date(from);
+  to = new Date(to);
+  limit = 2;
   
   //find user
   User
