@@ -7,6 +7,8 @@ router.post('/new-user', (req, res) => {
   let name = req.body.name;
   let user = { name };
 
+  if(!name) throw new Error("user name cannot be empty");
+
   User
     .find(user)
     .then(foundUser => {
@@ -17,7 +19,11 @@ router.post('/new-user', (req, res) => {
       let { id, name } = newUser;
       res.json({ id, name });
     })    
-    .catch( err => res.status(500).send(err.message));
+    .catch( err => res.status(500).json({
+      error: {
+        message: err.message
+      }
+    }));
 });
 
 router.post('/add', (req, res) => {
@@ -78,7 +84,7 @@ router.get('/log/:id/:from?/:to?/:limit?', (req, res) => {
   let { id, from, to, limit } = req.params;
   from = new Date('2014-01-01');
   to = new Date('2020-01-01');
-  limit = 2;
+  // limit = 2;
   
   //find user
   User
