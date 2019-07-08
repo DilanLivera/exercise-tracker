@@ -53,7 +53,7 @@ router.post('/add', (req, res) => {
                 //find the user and populate the exercise list
                 User
                   .findOne({ id })                
-                  .populate('exerciseList', 'description duration date')
+                  .populate('exerciseList', 'description duration date -_id')
                   .exec((err, foundUser) => {                  
                     if(err) throw err;
                     let { id, name, exerciseList } = foundUser;
