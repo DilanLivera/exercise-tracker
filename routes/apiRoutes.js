@@ -9,21 +9,7 @@ router.post('/new-user', (req, res) => {
 
   if(!name) throw new Error("user name cannot be empty");
 
-  User
-    .find(user)
-    .then(foundUser => {
-      if(foundUser.length) throw new Error('username exists.');
-      else return User.create(user);
-    })
-    .then(newUser => {
-      let { id, name } = newUser;
-      res.json({ id, name });
-    })    
-    .catch( err => res.status(500).json({
-      error: {
-        message: err.message
-      }
-    }));
+  addNewUser(user, res);
 });
 
 router.post('/add', (req, res) => {
@@ -34,13 +20,54 @@ router.post('/add', (req, res) => {
   if(!id) throw new Error("user id cannot be empty");
   if(date !== undefined && (new Date(date)).toString() === "Invalid Date") throw new Error("please enter a valid date");
 
+  addNewExercise({ id, description, duration, date }, res);
+});
+
+router.get('/log', (req, res) => {
+  let { id, from, to, limit } = req.query;
+
+  if(from) from = new Date(from);
+  if(to) to = new Date(to);
+
+  //set the dates if no dates are passed in
+  if(from === undefined) from = new Date(0);
+  if(to === undefined) to = new Date(Date.now())
+  
+  if(from.toString() === "Invalid Date") throw new Error("please enter a valid date");
+  if(to.toString() === "Invalid Date") throw new Error("please enter a valid date");
+
+  logQuery({ id, from, to, limit }, res);
+});
+
+module.exports = router;
+
+function addNewUser(user, res) {
+  User
+  .find(user)
+  .then(foundUser => {
+    if(foundUser.length) throw new Error('username exists.');
+    else return User.create(user);
+  })
+  .then(newUser => {
+    let { id, name } = newUser;
+    res.json({ id, name });
+  })    
+  .catch( err => res.status(500).json({
+    error: {
+      message: err.message
+    }
+  }));
+}
+
+function addNewExercise(exercise, res) {
+  let { id, description, duration, date } = exercise;
+
   Exercise
     .create({ description, duration, date })
     .then(newExercise => {      
       User
         .findOne({ id })
         .then(foundUser => {
-          console.log(foundUser);
           //check if user exists
           if(foundUser) {
             //add new exercise to the users exercise list
@@ -77,51 +104,39 @@ router.post('/add', (req, res) => {
           message: err.message
         }
       });
-    })
-});
+    });
+}
 
-router.get('/log', (req, res) => {
-  let { id, from, to, limit } = req.query;
-
-  if(from) from = new Date(from);
-  if(to) to = new Date(to);
-
-  //set the dates if no dates are passed in
-  if(from === undefined) from = new Date(0);
-  if(to === undefined) to = new Date(Date.now())
-  
-  if(from.toString() === "Invalid Date") throw new Error("please enter a valid date");
-  if(to.toString() === "Invalid Date") throw new Error("please enter a valid date");
+function logQuery(query, res) {
+  let { id, from, to, limit } = query;
 
   // find user
   User
-    .findOne({ id })
-    //populte with query conditions
-    .populate({
-      path: 'exerciseList',
-      match: {
-        date: {
-            $gt:  from,
-            $lt:  to
-        }
-      },
-      select: 'description duration date -_id',
-      options: { 
-        limit
+  .findOne({ id })
+  //populte with query conditions
+  .populate({
+    path: 'exerciseList',
+    match: {
+      date: {
+          $gt:  from,
+          $lt:  to
       }
-    })
-    .exec((err, foundUser) => {
-      if(err){
-        res.status(500).json({
-                error: {
-                  message: err.message
-                }
-              });
-      }
+    },
+    select: 'description duration date -_id',
+    options: { 
+      limit
+    }
+  })
+  .exec((err, foundUser) => {
+    if(err){
+      res.status(500).json({
+              error: {
+                message: err.message
+              }
+            });
+    }
 
-      let { id, name, exerciseList } = foundUser;
-      res.json({ id, name, exerciseList });
-    });
-});
-
-module.exports = router;
+    let { id, name, exerciseList } = foundUser;
+    res.json({ id, name, exerciseList });
+  });  
+}
