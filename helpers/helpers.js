@@ -95,7 +95,7 @@ helpers.logQuery = function (query, res) {
               }
             });
     }
-    
+
     res.json(updateExerciseList(foundUser));
   });  
 }
@@ -110,7 +110,7 @@ function updateExerciseList(user){
     return { date, description, duration };
   });
 
-  return { id, name, updatedExerciseList };
+  return { id, name, exerciseList: updatedExerciseList };
 }
 
 module.exports = helpers;
