@@ -45,14 +45,7 @@ helpers.addNewExercise = function (exercise, res) {
                   .exec((err, foundUser) => {                  
                     if(err) throw err;
 
-                    let { id, name, exerciseList } = foundUser;
-                    let updatedExerciseList = exerciseList.map(exercise => {
-                      let { date, description, duration } = exercise;
-                      date = date.toDateString();
-                      return { date, description, duration };
-                    });                   
-
-                    res.json({ id, name, updatedExerciseList });
+                    res.json(updateExerciseList(foundUser));
                   });
                 })
             .catch( err => res.status(500).send(err.message));
@@ -102,16 +95,22 @@ helpers.logQuery = function (query, res) {
               }
             });
     }
-
-    let { id, name, exerciseList } = foundUser;
-    let updatedExerciseList = exerciseList.map(exercise => {
-      let { date, description, duration } = exercise;
-      date = date.toDateString();
-      return { date, description, duration };
-    });                   
-
-    res.json({ id, name, updatedExerciseList });
+    
+    res.json(updateExerciseList(foundUser));
   });  
+}
+
+//update passed in user's exercise list
+function updateExerciseList(user){
+  let { id, name, exerciseList } = user;
+
+  let updatedExerciseList = exerciseList.map(exercise => {
+    let { date, description, duration } = exercise;
+    date = date.toDateString();
+    return { date, description, duration };
+  });
+
+  return { id, name, updatedExerciseList };
 }
 
 module.exports = helpers;
