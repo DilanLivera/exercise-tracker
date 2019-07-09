@@ -24,7 +24,7 @@ router.post('/add', (req, res) => {
 });
 
 router.get('/log', (req, res) => {
-  let { id, from, to, limit } = req.query;
+  let { userId, from, to, limit } = req.query;
 
   if(from) from = new Date(from);
   if(to) to = new Date(to);
@@ -36,7 +36,7 @@ router.get('/log', (req, res) => {
   if(from.toString() === "Invalid Date") throw new Error("please enter a valid date");
   if(to.toString() === "Invalid Date") throw new Error("please enter a valid date");
 
-  helpers.logQuery({ id, from, to, limit }, res);
+  helpers.logQuery({ id: userId, from, to, limit }, res);
 });
 
 module.exports = router;

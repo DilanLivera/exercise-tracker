@@ -70,34 +70,40 @@ helpers.addNewExercise = function (exercise, res) {
 helpers.logQuery = function (query, res) {
   let { id, from, to, limit } = query;
 
-  // find user
-  User
-  .findOne({ id })
-  //populte with query conditions
-  .populate({
-    path: 'exerciseList',
-    match: {
-      date: {
-          $gt:  from,
-          $lt:  to
+  try{
+    if(!id) throw new Error("please enter a valid userId");
+    // find user
+    User
+    .findOne({ id })
+    //populte with query conditions
+    .populate({
+      path: 'exerciseList',
+      match: {
+        date: {
+            $gt:  from,
+            $lt:  to
+        }
+      },
+      select: 'description duration date -_id',
+      options: { 
+        limit
       }
-    },
-    select: 'description duration date -_id',
-    options: { 
-      limit
-    }
-  })
-  .exec((err, foundUser) => {
-    if(err){
-      res.status(500).json({
-              error: {
-                message: err.message
-              }
-            });
-    }
+    })
+    .exec((err, foundUser) => {
+      if(err){
+        throw err;
+      }    
 
-    res.json(updateExerciseList(foundUser));
-  });  
+      res.json(updateExerciseList(foundUser));
+    });     
+  } catch(err) {
+    res.status(500).json({
+      error: {
+        message: err.message
+      }
+    });
+  }
+ 
 }
 
 //update passed in user's exercise list
