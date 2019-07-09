@@ -44,9 +44,15 @@ helpers.addNewExercise = function (exercise, res) {
                   .populate('exerciseList', 'description duration date -_id')
                   .exec((err, foundUser) => {                  
                     if(err) throw err;
-                    let { id, name, exerciseList } = foundUser;
 
-                    res.json({ id, name, exerciseList });
+                    let { id, name, exerciseList } = foundUser;
+                    let updatedExerciseList = exerciseList.map(exercise => {
+                      let { date, description, duration } = exercise;
+                      date = date.toDateString();
+                      return { date, description, duration };
+                    });                   
+
+                    res.json({ id, name, updatedExerciseList });
                   });
                 })
             .catch( err => res.status(500).send(err.message));
@@ -98,7 +104,13 @@ helpers.logQuery = function (query, res) {
     }
 
     let { id, name, exerciseList } = foundUser;
-    res.json({ id, name, exerciseList });
+    let updatedExerciseList = exerciseList.map(exercise => {
+      let { date, description, duration } = exercise;
+      date = date.toDateString();
+      return { date, description, duration };
+    });                   
+
+    res.json({ id, name, updatedExerciseList });
   });  
 }
 
